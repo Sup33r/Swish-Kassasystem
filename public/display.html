@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Display</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.2"></script>
+  <script>
+    const socket = io();
+
+    function updateTime() {
+      const timeElement = document.getElementById('time');
+      const now = new Date();
+      timeElement.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    setInterval(updateTime, 1000); // Update time every second
+
+    socket.on('displayAmount', (payload) => {
+      const totalElement = document.getElementById('total');
+      const infoElement = document.getElementById('info');
+      const qrCodeImage = document.getElementById('qrCode');
+      const noPaymentMessage = document.getElementById('noPaymentMessage');
+      const qrCodeContainer = document.getElementById('centralContainer');
+      const thanksMessage = document.getElementById('thanksMessage');
+
+      if (payload.amount === 0 || payload.amount === "0") {
+        totalElement.innerText = '';
+        infoElement.innerText = '';
+        qrCodeImage.style.display = 'none';
+        qrCodeContainer.style.display = 'none';
+        noPaymentMessage.style.display = 'block';
+        thanksMessage.style.display = 'none';
+      } else if (payload.amount === -1 || payload.amount === "-1") {
+        totalElement.innerText = '';
+        infoElement.innerText = '';
+        qrCodeImage.style.display = 'none';
+        qrCodeContainer.style.display = 'none';
+        thanksMessage.style.display = 'block';
+        confetti({
+         particleCount: 160,
+         spread: 70,
+         origin: { y: 0.6 }
+       });
+      } else {
+        totalElement.innerText = `${payload.amount} kr`;
+        qrCodeImage.src = payload.qrCode;
+        qrCodeImage.style.display = 'block';
+        noPaymentMessage.style.display = 'none';
+        qrCodeContainer.style.display = 'block'; // Display the container
+        thanksMessage.style.display = 'none';
+      }
+    });
+  </script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh; /* Full viewport height */
+      font-family: Arial, sans-serif;
+      background-color: #333;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Prevents scrolling if elements overflow */
+      animation: fadein 2s;
+    }
+
+    #header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: #222;
+      box-sizing: border-box; /* Includes padding in the element's total width */
+
+    }
+    
+    #brandIcon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 50px; /* Adjust as needed */
+}
+
+    #logo {
+      width: 70px; /* Adjust as needed */
+      height: auto;
+    }
+
+    #centralContainer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+    
+    #qrCodeContainer {
+      text-align: center;
+      display: none;  /* This will hide the container initially */
+    }
+
+    
+#qrCode {
+  margin-top: 20px;
+  max-width: 100%; /* Ensure it doesn't overflow the screen */
+  display: none; /* Hide initially */
+}
+
+#total {
+  margin-top: 20px;
+  font-size: 1.5em;
+}
+#info {
+  margin-top: 20px;
+  font-size: 1.5em;
+}
+    
+
+    #noPaymentMessage {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
+    }
+    #thanksMessage {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <img id="logo" src="logo.png" alt="Company Logo">
+    <img id="brandIcon" src="swish.png" alt="Brand Icon"> <!-- Add this line -->
+    <div id="time"></div>
+  </div>
+<div id="centralContainer">
+  <img id="qrCode" alt="Swish QR Code">
+  <div id="total"></div>
+  <div id="info"></div>
+</div>
+  <div id="noPaymentMessage">Inväntar betalningsinstruktioner</div>
+  <div id="thanksMessage">Tack för ditt köp!</div>
+</body>
+</html>

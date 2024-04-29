@@ -1,0 +1,17 @@
+{
+  "name": "swish-kassasystem",
+  "version": "1.0.0",
+  "description": "Ett kassasystem med två enheter och swish QR-koder",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Viktor :)",
+  "license": "ISC",
+  "dependencies": {
+    "canvas-confetti": "^1.9.2",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "swish-qr": "^2.0.0"
+  }
+}

@@ -1,0 +1,189 @@
+<!-- public/keypad.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Keypad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let currentInput = '';
+    let orderNumber = 0;
+
+    function updateOrderDisplay() {
+    }
+  function incrementOrder() {
+    orderNumber++;
+    updateOrderDisplay();
+  }
+
+function decrementOrder() {
+  if (orderNumber > 0) {
+    orderNumber--;
+    updateOrderDisplay();
+  }
+}
+    function addToInput(value) {
+      currentInput += value;
+      updateDisplay();
+    }
+  
+function clearInput() {
+  socket.emit('sendAmount', 0,0);
+  currentInput = '';
+  updateDisplay();
+}
+
+    function calculateTotal() {
+      try {
+        currentInput = eval(currentInput).toString();
+      } catch (e) {
+        currentInput = 'Error';
+      }
+      updateDisplay();
+    }
+
+    function completePayment() {
+    incrementOrder();
+    socket.emit('sendAmount', -1,0);
+    updateDisplay();
+    setTimeout(function() {
+      socket.emit('sendAmount', 0,0);
+      updateDisplay();
+    }, 7000);
+  }
+
+    function updateDisplay() {
+      document.getElementById('display').value = currentInput;
+    }
+
+    function sendAmount() {
+      calculateTotal();
+      socket.emit('sendAmount', currentInput,orderNumber);
+      currentInput = '';
+      updateDisplay();
+    }
+  function backspace() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+  }
+  </script>
+</head>
+<body> 
+  <input type="text" id="display" readonly>
+  <div>
+  <div class="button-row">
+    <button onclick="addToInput('7')">7</button>
+    <button onclick="addToInput('8')">8</button>
+    <button onclick="addToInput('9')">9</button>
+  </div>
+  <div class="button-row">
+    <button onclick="addToInput('4')">4</button>
+    <button onclick="addToInput('5')">5</button>
+    <button onclick="addToInput('6')">6</button>
+  </div>
+  <div class="button-row">
+    <button onclick="addToInput('1')">1</button>
+    <button onclick="addToInput('2')">2</button>
+    <button onclick="addToInput('3')">3</button>
+
+  </div>  
+  <div class="button-row">
+  <button onclick="addToInput('+')">+</button>
+  <button onclick="addToInput('0')">0</button>
+  <button onclick="addToInput('-')">-</button>
+  </div>
+  <div class="button-row">
+    <button id="clearButton" onclick="clearInput()">Clear</button>
+    <button id="backButton" onclick="backspace()">Back</button>
+    <button id="okButton" onclick="sendAmount()">OK</button>
+   </div>
+   <div class="button-row">
+    <button id="completeButton" onclick="completePayment()">Genomför betalning</button>
+   </div>
+  </div>
+
+</body>
+<style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+
+
+    #display {
+      width: 90vw;
+      font-size: 2em;
+      padding: 10px;
+      margin-bottom: 10px;
+      text-align: right;
+      border: none;
+      background: #fff;
+    }
+
+    #okButton {
+      background: #4CAF50;
+    }
+    #completeButton {
+    grid-column: span 3;
+    background-color: plum;
+    color: white;
+  }
+
+    #clearButton {
+      background: #f44336;
+    }
+    #backButton {
+      background: rgb(255, 255, 0);
+    }
+
+    button {
+      padding: 20px;
+      font-size: 1.5em;
+      margin: 5px;
+      align-self: center;
+      cursor: pointer;
+      border: none;
+      background: #ccc;
+      color: #fff;
+    }
+
+    .button-row {
+      display: grid;
+      align-items: center;
+      justify-content: center;
+      grid-template-columns: repeat(4, 1fr);
+      width: 90vw;
+      margin: 5px 0;
+    }
+
+  .send-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    width: 80%;
+    font-size: 1.5em;
+    padding: 15px;
+    margin-top: 20px;
+  }
+  
+    .order-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    #orderDisplay {
+      margin: 0 15px;
+      font-size: 1.5em;
+    }
+</style>
+
+</html>
